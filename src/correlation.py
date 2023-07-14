@@ -2,20 +2,6 @@ import numpy as np
 from numba import njit
 
 
-@njit
-def _calculate_pearson(x, corr, mean, n, N):
-    for i in range(N):
-        for j in range(i, N):
-            for t in range(n):
-                corr[i][j] += (x[t][i] - mean[i]) * (x[t][j] - mean[j])
-    for i in range(N):
-        for j in range(i+1, N):
-            corr[i][j] /= np.sqrt(corr[i][i] * corr[j][j])
-            corr[j][i] = corr[i][j]
-    for i in range(N):
-        corr[i][i] = 1
-
-
 def pearson(x):
     """
     Sample Pearson correlation matrix.
@@ -30,23 +16,18 @@ def pearson(x):
     corr : (N,N) ndarray
         Sample Pearson correlation matrix.
     """
-    x = np.array(x)
-    n, N = x.shape
-    mean = np.mean(x, axis=0)
-    corr = np.zeros((N, N))
-    _calculate_pearson(x, corr, mean, n, N)
-    return corr
-
-
-@njit
-def _calculate_sign_similarity(x, corr, mean, n, N):
+    x = np.array(x).T
+    N, n = x.shape
+    mean = np.mean(x, axis=1).reshape((N, -1))
+    x = x - mean
+    corr = np.dot(x, x.T)
     for i in range(N):
-        for j in range(i, N):
-            for t in range(n):
-                if (x[t][i] - mean[i]) * (x[t][j] - mean[j]) >= 0:
-                    corr[i][j] += 1
-            corr[i][j] /= n
+        for j in range(i+1, N):
+            corr[i][j] /= np.sqrt(corr[i][i] * corr[j][j])
             corr[j][i] = corr[i][j]
+    for i in range(N):
+        corr[i][i] = 1
+    return corr
 
 
 def sign_similarity(x):
@@ -57,31 +38,18 @@ def sign_similarity(x):
     ----------
     x : (n,N) array_like
         Sample of the size n from distribution of the N-dimensional random vector.
-
     Returns
     -------
     corr : (N,N) ndarray
         Sample sign similarity matrix.
     """
-    x = np.array(x)
-    n, N = x.shape
-    mean = np.mean(x, axis=0)
-    corr = np.zeros((N, N))
-    _calculate_sign_similarity(x, corr, mean, n, N)
-    return corr
-
-
-@njit
-def _calculate_fechner(x, corr, mean, n, N):
-    for i in range(N):
-        for j in range(i, N):
-            for t in range(n):
-                if (x[t][i] - mean[i]) * (x[t][j] - mean[j]) >= 0:
-                    corr[i][j] += 1
-                else:
-                    corr[i][j] -= 1
-            corr[i][j] /= n
-            corr[j][i] = corr[i][j]
+    x = np.array(x).T
+    N, n = x.shape
+    mean = np.mean(x, axis=1).reshape((N, -1))
+    x = x - mean
+    transformer = np.vectorize(lambda y: 1 if y >= 0 else 0)
+    corr = np.sum(transformer(x[..., np.newaxis]*x.T[np.newaxis, ...]), axis=1)
+    return corr / n
 
 
 def fechner(x):
@@ -98,25 +66,13 @@ def fechner(x):
     corr : (N,N) ndarray
         Sample Fechner correlation matrix.
     """
-    x = np.array(x)
-    n, N = x.shape
-    mean = np.mean(x, axis=0)
-    corr = np.zeros((N, N))
-    _calculate_fechner(x, corr, mean, n, N)
-    return corr
-
-
-@njit
-def _calculate_kruskal(x, corr, med, n, N):
-    for i in range(N):
-        for j in range(i, N):
-            for t in range(n):
-                if (x[t][i] - med[i]) * (x[t][j] - med[j]) >= 0:
-                    corr[i][j] += 1
-                else:
-                    corr[i][j] -= 1
-            corr[i][j] /= n
-            corr[j][i] = corr[i][j]
+    x = np.array(x).T
+    N, n = x.shape
+    mean = np.mean(x, axis=1).reshape((N, -1))
+    x = x - mean
+    transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
+    corr = np.sum(transformer(x[..., np.newaxis]*x.T[np.newaxis, ...]), axis=1)
+    return corr / n
 
 
 def kruskal(x):
@@ -133,12 +89,13 @@ def kruskal(x):
     corr : (N,N) ndarray
         Sample Kruskal correlation matrix.
     """
-    x = np.array(x)
-    n, N = x.shape
-    med = np.median(x, axis=0)
-    corr = np.zeros((N, N))
-    _calculate_kruskal(x, corr, med, n, N)
-    return corr
+    x = np.array(x).T
+    N, n = x.shape
+    med = np.median(x, axis=1).reshape((N, -1))
+    x = x - med
+    transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
+    corr = np.sum(transformer(x[..., np.newaxis]*x.T[np.newaxis, ...]), axis=1)
+    return corr / n
 
 
 @njit
@@ -211,4 +168,34 @@ def spearman(x):
     n, N = x.shape
     corr = np.zeros((N, N))
     _calculate_spearman(x, corr, n, N)
+    return corr
+
+
+def partial(x):
+    """
+    Sample Partial Pearson correlation matrix.
+
+    Parameters
+    ----------
+    x : (n,N) array_like
+        Sample of the size n from distribution of the N-dimensional random vector.
+
+    Returns
+    -------
+    corr : (N,N) ndarray
+        Sample Partial Pearson correlation matrix.
+    """
+    x = np.array(x).T
+    N, n = x.shape
+    mean = np.mean(x, axis=1).reshape((N, -1))
+    x = x - mean
+    corr = np.dot(x, x.T)
+    corr = corr / (n-1)
+    corr = np.linalg.inv(corr)
+    for i in range(N):
+        for j in range(i+1, N):
+            corr[i][j] /= -np.sqrt(corr[i][i] * corr[j][j])
+            corr[j][i] = corr[i][j]
+    for i in range(N):
+        corr[i][i] /= -np.sqrt(corr[i][i] * corr[i][i])
     return corr
