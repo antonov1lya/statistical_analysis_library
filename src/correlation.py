@@ -74,7 +74,7 @@ def sign_similarity(x):
     transformer = np.vectorize(lambda y: 1 if y >= 0 else 0)
     for i in range(N):
         for j in range(i+1, N):
-            corr[i][j] = np.sum(transformer(x[i]*x[j])) / n
+            corr[i][j] = np.sum(transformer(x[i] * x[j])) / n
             corr[j][i] = corr[i][j]
     for i in range(N):
         corr[i][i] = 1
@@ -103,7 +103,7 @@ def fechner(x):
     transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
     for i in range(N):
         for j in range(i+1, N):
-            corr[i][j] = np.sum(transformer(x[i]*x[j])) / n
+            corr[i][j] = np.sum(transformer(x[i] * x[j])) / n
             corr[j][i] = corr[i][j]
     for i in range(N):
         corr[i][i] = 1
@@ -132,7 +132,7 @@ def kruskal(x):
     transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
     for i in range(N):
         for j in range(i+1, N):
-            corr[i][j] = np.sum(transformer(x[i]*x[j])) / n
+            corr[i][j] = np.sum(transformer(x[i] * x[j])) / n
             corr[j][i] = corr[i][j]
     for i in range(N):
         corr[i][i] = 1
@@ -151,7 +151,7 @@ def _kendall_pair(x, y):
     Q = _kendall_dis(x, y)
     n = x.shape[0]
 
-    return 1 - ((2 * Q) / (0.5 * n * (n - 1)))
+    return 1 - 4 * Q / (n * (n - 1))
 
 
 def kendall(x):
@@ -195,13 +195,13 @@ def _spearman_pair(x, y):
 
     Q = 0
     n = x.shape[0]
-    Q += np.sum(np.searchsorted(x_ord, x-1, side='right') *
-                (n-np.searchsorted(y_ord, y+1, side='left')))
-    Q += np.sum(np.searchsorted(y_ord, y-1, side='right') *
-                (n-np.searchsorted(x_ord, x+1, side='left')))
+    Q += np.sum(np.searchsorted(x_ord, x - 1, side='right') *
+                (n - np.searchsorted(y_ord, y + 1, side='left')))
+    Q += np.sum(np.searchsorted(y_ord, y - 1, side='right') *
+                (n - np.searchsorted(x_ord, x + 1, side='left')))
     Q -= 2 * _kendall_dis(x, y)
 
-    return 3 - (6*Q)/(n*(n-1)*(n-2))
+    return 3 - 6 * Q / (n * (n - 1) * (n - 2))
 
 
 def spearman(x):
@@ -275,5 +275,5 @@ def kurtosis(x):
     x = x - mean
     x = x.T
 
-    k = 1 / (n * N * (N+2)) * np.sum(np.sum(np.dot(x, S) * x, axis=1)**2) - 1
+    k = 1 / (n * N * (N + 2)) * np.sum(np.sum(np.dot(x, S) * x, axis=1)**2) - 1
     return k
