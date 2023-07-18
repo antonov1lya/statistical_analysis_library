@@ -1,5 +1,31 @@
 import numpy as np
-from numba import njit
+from scipy.stats._stats import _kendall_dis
+
+
+def covariance(x):
+    """
+    Sample covariance matrix.
+
+    Parameters
+    ----------
+    x : (n,N) array_like
+        Sample of the size n from distribution of the N-dimensional random vector.
+
+    Returns
+    -------
+    cov : (N,N) ndarray
+        Sample covariance matrix.
+    """
+    x = np.array(x).T
+    N, n = x.shape
+    mean = np.mean(x, axis=1).reshape((N, -1))
+    x = x - mean
+    cov = np.zeros((N, N))
+    for i in range(N):
+        for j in range(i, N):
+            cov[i][j] = np.dot(x[i], x[j]) / n
+            cov[j][i] = cov[i][j]
+    return cov
 
 
 def pearson(x):
@@ -16,17 +42,14 @@ def pearson(x):
     corr : (N,N) ndarray
         Sample Pearson correlation matrix.
     """
-    x = np.array(x).T
-    N, n = x.shape
-    mean = np.mean(x, axis=1).reshape((N, -1))
-    x = x - mean
-    corr = np.dot(x, x.T)
+    corr = covariance(x)
+    N = corr.shape[0]
     for i in range(N):
         for j in range(i+1, N):
             corr[i][j] /= np.sqrt(corr[i][i] * corr[j][j])
             corr[j][i] = corr[i][j]
     for i in range(N):
-        corr[i][i] = 1
+        corr[i][i] /= np.sqrt(corr[i][i] * corr[i][i])
     return corr
 
 
@@ -47,9 +70,15 @@ def sign_similarity(x):
     N, n = x.shape
     mean = np.mean(x, axis=1).reshape((N, -1))
     x = x - mean
+    corr = np.zeros((N, N))
     transformer = np.vectorize(lambda y: 1 if y >= 0 else 0)
-    corr = np.sum(transformer(x[..., np.newaxis]*x.T[np.newaxis, ...]), axis=1)
-    return corr / n
+    for i in range(N):
+        for j in range(i+1, N):
+            corr[i][j] = np.sum(transformer(x[i]*x[j])) / n
+            corr[j][i] = corr[i][j]
+    for i in range(N):
+        corr[i][i] = 1
+    return corr
 
 
 def fechner(x):
@@ -70,9 +99,15 @@ def fechner(x):
     N, n = x.shape
     mean = np.mean(x, axis=1).reshape((N, -1))
     x = x - mean
+    corr = np.zeros((N, N))
     transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
-    corr = np.sum(transformer(x[..., np.newaxis]*x.T[np.newaxis, ...]), axis=1)
-    return corr / n
+    for i in range(N):
+        for j in range(i+1, N):
+            corr[i][j] = np.sum(transformer(x[i]*x[j])) / n
+            corr[j][i] = corr[i][j]
+    for i in range(N):
+        corr[i][i] = 1
+    return corr
 
 
 def kruskal(x):
@@ -93,23 +128,30 @@ def kruskal(x):
     N, n = x.shape
     med = np.median(x, axis=1).reshape((N, -1))
     x = x - med
+    corr = np.zeros((N, N))
     transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
-    corr = np.sum(transformer(x[..., np.newaxis]*x.T[np.newaxis, ...]), axis=1)
-    return corr / n
-
-
-@njit
-def _calculate_kendall(x, corr, n, N):
     for i in range(N):
-        for j in range(i, N):
-            for t in range(n):
-                for s in range(t+1, n):
-                    if (x[t][i] - x[s][i]) * (x[t][j] - x[s][j]) >= 0:
-                        corr[i][j] += 1
-                    else:
-                        corr[i][j] -= 1
-            corr[i][j] *= 2 / (n * (n - 1))
+        for j in range(i+1, N):
+            corr[i][j] = np.sum(transformer(x[i]*x[j])) / n
             corr[j][i] = corr[i][j]
+    for i in range(N):
+        corr[i][i] = 1
+    return corr
+
+
+def _kendall_pair(x, y):
+    p = np.argsort(y, kind='stable')
+    x, y = x[p], y[p]
+    y = np.r_[True, y[1:] != y[:-1]].cumsum()
+
+    p = np.argsort(x, kind='stable')
+    x, y = x[p], y[p]
+    x = np.r_[True, x[1:] != x[:-1]].cumsum()
+
+    Q = _kendall_dis(x, y)
+    n = x.shape[0]
+
+    return 1 - ((2 * Q) / (0.5 * n * (n - 1)))
 
 
 def kendall(x):
@@ -126,28 +168,40 @@ def kendall(x):
     corr : (N,N) ndarray
         Sample Kendall correlation matrix.
     """
-    x = np.array(x)
-    n, N = x.shape
+    x = np.array(x).T
+    N, n = x.shape
     corr = np.zeros((N, N))
-    _calculate_kendall(x, corr, n, N)
+    for i in range(N):
+        for j in range(i+1, N):
+            corr[i][j] = _kendall_pair(x[i], x[j])
+            corr[j][i] = corr[i][j]
+    for i in range(N):
+        corr[i][i] = 1
     return corr
 
 
-@njit
-def _calculate_spearman(x, corr, n, N):
-    for i in range(N):
-        for j in range(i, N):
-            for t in range(n):
-                for s in range(n):
-                    if s != t:
-                        for l in range(s+1, n):
-                            if l != t:
-                                if (x[t][i] - x[s][i]) * (x[t][j] - x[l][j]) >= 0:
-                                    corr[i][j] += 1
-                                else:
-                                    corr[i][j] -= 1
-            corr[i][j] *= 6 / (n * (n - 1) * (n - 2))
-            corr[j][i] = corr[i][j]
+def _spearman_pair(x, y):
+    p = np.argsort(y, kind='stable')
+    x, y = x[p], y[p]
+    y = np.r_[True, y[1:] != y[:-1]].cumsum()
+
+    y_ord = y
+
+    p = np.argsort(x, kind='stable')
+    x, y = x[p], y[p]
+    x = np.r_[True, x[1:] != x[:-1]].cumsum()
+
+    x_ord = x
+
+    Q = 0
+    n = x.shape[0]
+    Q += np.sum(np.searchsorted(x_ord, x-1, side='right') *
+                (n-np.searchsorted(y_ord, y+1, side='left')))
+    Q += np.sum(np.searchsorted(y_ord, y-1, side='right') *
+                (n-np.searchsorted(x_ord, x+1, side='left')))
+    Q -= 2 * _kendall_dis(x, y)
+
+    return 3 - (6*Q)/(n*(n-1)*(n-2))
 
 
 def spearman(x):
@@ -164,10 +218,13 @@ def spearman(x):
     corr : (N,N) ndarray
         Sample Spearman correlation matrix.
     """
-    x = np.array(x)
-    n, N = x.shape
+    x = np.array(x).T
+    N, n = x.shape
     corr = np.zeros((N, N))
-    _calculate_spearman(x, corr, n, N)
+    for i in range(N):
+        for j in range(i, N):
+            corr[i][j] = _spearman_pair(x[i], x[j])
+            corr[j][i] = corr[i][j]
     return corr
 
 
@@ -185,13 +242,8 @@ def partial(x):
     corr : (N,N) ndarray
         Sample Partial Pearson correlation matrix.
     """
-    x = np.array(x).T
-    N, n = x.shape
-    mean = np.mean(x, axis=1).reshape((N, -1))
-    x = x - mean
-    corr = np.dot(x, x.T)
-    corr = corr / (n-1)
-    corr = np.linalg.inv(corr)
+    corr = np.linalg.inv(covariance(x))
+    N = corr.shape[0]
     for i in range(N):
         for j in range(i+1, N):
             corr[i][j] /= -np.sqrt(corr[i][i] * corr[j][j])
