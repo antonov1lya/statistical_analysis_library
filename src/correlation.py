@@ -251,3 +251,29 @@ def partial(x):
     for i in range(N):
         corr[i][i] /= -np.sqrt(corr[i][i] * corr[i][i])
     return corr
+
+
+def kurtosis(x):
+    """
+    Sample analog of kurtosis.
+
+    Parameters
+    ----------
+    x : (n,N) array_like
+        Sample of the size n from distribution of the N-dimensional random vector.
+
+    Returns
+    -------
+    kurtosis : float
+        Sample analog of kurtosis.
+    """
+    n, N = x.shape
+    S = np.linalg.inv(covariance(x))
+
+    x = np.array(x).T
+    mean = np.mean(x, axis=1).reshape((N, -1))
+    x = x - mean
+    x = x.T
+
+    k = 1 / (n * N * (N+2)) * np.sum(np.sum(np.dot(x, S) * x, axis=1)**2) - 1
+    return k
