@@ -151,7 +151,7 @@ def _kendall_pair(x, y):
     Q = _kendall_dis(x, y)
     n = x.shape[0]
 
-    return 1 - 4 * Q / (n * (n - 1))
+    return 1 - (4 * Q / (n * (n - 1)))
 
 
 def kendall(x):
@@ -201,7 +201,7 @@ def _spearman_pair(x, y):
                 (n - np.searchsorted(x_ord, x + 1, side='left')))
     Q -= 2 * _kendall_dis(x, y)
 
-    return 3 - 6 * Q / (n * (n - 1) * (n - 2))
+    return 3 - (6 * Q / (n * (n - 1) * (n - 2)))
 
 
 def spearman(x):
