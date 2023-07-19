@@ -2,7 +2,7 @@ import numpy as np
 from scipy.stats._stats import _kendall_dis
 
 
-def covariance(x):
+def covariance(x: np.ndarray) -> np.ndarray:
     """
     Sample covariance matrix.
 
@@ -28,7 +28,7 @@ def covariance(x):
     return cov
 
 
-def pearson(x):
+def pearson(x: np.ndarray) -> np.ndarray:
     """
     Sample Pearson correlation matrix.
 
@@ -53,7 +53,7 @@ def pearson(x):
     return corr
 
 
-def sign_similarity(x):
+def sign_similarity(x: np.ndarray) -> np.ndarray:
     """
     Sample sign similarity matrix.
 
@@ -81,7 +81,7 @@ def sign_similarity(x):
     return corr
 
 
-def fechner(x):
+def fechner(x: np.ndarray) -> np.ndarray:
     """
     Sample Fechner correlation matrix.
 
@@ -110,7 +110,7 @@ def fechner(x):
     return corr
 
 
-def kruskal(x):
+def kruskal(x: np.ndarray) -> np.ndarray:
     """
     Sample Kruskal correlation matrix.
 
@@ -139,7 +139,7 @@ def kruskal(x):
     return corr
 
 
-def _kendall_pair(x, y):
+def _kendall_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     p = np.argsort(y, kind='stable')
     x, y = x[p], y[p]
     y = np.r_[True, y[1:] != y[:-1]].cumsum()
@@ -154,7 +154,7 @@ def _kendall_pair(x, y):
     return 1 - (4 * Q / (n * (n - 1)))
 
 
-def kendall(x):
+def kendall(x: np.ndarray) -> np.ndarray:
     """
     Sample Kendall correlation matrix.
 
@@ -180,7 +180,7 @@ def kendall(x):
     return corr
 
 
-def _spearman_pair(x, y):
+def _spearman_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     p = np.argsort(y, kind='stable')
     x, y = x[p], y[p]
     y = np.r_[True, y[1:] != y[:-1]].cumsum()
@@ -204,7 +204,7 @@ def _spearman_pair(x, y):
     return 3 - (6 * Q / (n * (n - 1) * (n - 2)))
 
 
-def spearman(x):
+def spearman(x: np.ndarray) -> np.ndarray:
     """
     Sample Spearman correlation matrix.
 
@@ -228,7 +228,7 @@ def spearman(x):
     return corr
 
 
-def partial(x):
+def partial(x: np.ndarray) -> np.ndarray:
     """
     Sample Partial Pearson correlation matrix.
 
@@ -253,7 +253,7 @@ def partial(x):
     return corr
 
 
-def kurtosis(x):
+def kurtosis(x: np.ndarray) -> float:
     """
     Sample analog of kurtosis.
 
