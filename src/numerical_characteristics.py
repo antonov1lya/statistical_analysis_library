@@ -49,7 +49,7 @@ def pearson(x):
             corr[i][j] /= np.sqrt(corr[i][i] * corr[j][j])
             corr[j][i] = corr[i][j]
     for i in range(N):
-        corr[i][i] /= np.sqrt(corr[i][i] * corr[i][i])
+        corr[i][i] = 1
     return corr
 
 
@@ -249,7 +249,7 @@ def partial(x):
             corr[i][j] /= -np.sqrt(corr[i][i] * corr[j][j])
             corr[j][i] = corr[i][j]
     for i in range(N):
-        corr[i][i] /= -np.sqrt(corr[i][i] * corr[i][i])
+        corr[i][i] = -1
     return corr
 
 
