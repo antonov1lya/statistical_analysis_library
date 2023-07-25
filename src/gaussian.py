@@ -5,12 +5,10 @@ from .numerical_characteristics import pearson
 
 def pearson_test(x: np.ndarray, threshold: float) -> np.ndarray:
     """
-    Calculate p-value for testing N(N-1)/2 hypotheses of the form
+    Calculates p-values for testing N(N-1)/2 hypotheses of the form:
     H_ij: The Pearson measure of similarity between the i and j component 
-    of the random vector <= threshold
-    vs
-    K_ij: The Pearson measure of similarity between the i and j component 
-    of the random vector > threshold.
+    of the random vector <= threshold vs K_ij: The Pearson measure of similarity 
+    between the i and j component of the random vector > threshold.
 
     Parameters
     ----------
@@ -28,7 +26,7 @@ def pearson_test(x: np.ndarray, threshold: float) -> np.ndarray:
     n, N = x.shape
 
     def z_transform(y):
-        return 0.5 * np.log((1+y)/(1-y))
+        return 0.5 * np.log((1+y) / (1-y))
 
     def statistics(y):
         return np.sqrt(n) * (z_transform(y) - z_transform(threshold))
