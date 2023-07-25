@@ -22,11 +22,12 @@ def pearson_test(x: np.ndarray, threshold: float) -> np.ndarray:
     -------
     p_value : (N,N) ndarray
         Matrix of p-values.
+    
     """
     n, N = x.shape
 
     def z_transform(y):
-        return 0.5 * np.log((1+y) / (1-y))
+        return 0.5 * np.log((1 + y) / (1 - y))
 
     def statistics(y):
         return np.sqrt(n) * (z_transform(y) - z_transform(threshold))

@@ -16,6 +16,7 @@ def from_pearson_to_sign_similarity(pearson: float) -> float:
     -------
     sign_similarity : float
         The equivalent value of the sign measure of similarity.
+    
     """
     return 0.5 + (1 / np.pi) * np.arcsin(pearson)
 
@@ -35,6 +36,7 @@ def from_pearson_to_fechner(pearson: float) -> float:
     -------
     fechner : float
         The equivalent value of the Fechner measure of similarity.
+    
     """
     return (2 / np.pi) * np.arcsin(pearson)
 
@@ -54,6 +56,7 @@ def from_pearson_to_kruskal(pearson: float) -> float:
     -------
     kruskal : float
         The equivalent value of the Kruskal measure of similarity.
+    
     """
     return (2 / np.pi) * np.arcsin(pearson)
 
@@ -73,6 +76,7 @@ def from_pearson_to_kendall(pearson: float) -> float:
     -------
     kendall : float
         The equivalent value of the Kendall measure of similarity.
+    
     """
     return (2 / np.pi) * np.arcsin(pearson)
 
@@ -92,5 +96,6 @@ def from_pearson_to_spearman(pearson: float) -> float:
     -------
     spearman : float
         The equivalent value of the Spearman measure of similarity.
+    
     """
     return (6 / np.pi) * np.arcsin(pearson / 2)
