@@ -15,6 +15,7 @@ def covariance(x: np.ndarray) -> np.ndarray:
     -------
     cov : (N,N) ndarray
         Sample covariance matrix.
+    
     """
     x = np.array(x).T
     N, n = x.shape
@@ -41,11 +42,12 @@ def pearson(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Pearson correlation matrix.
+    
     """
     corr = covariance(x)
     N = corr.shape[0]
     for i in range(N):
-        for j in range(i+1, N):
+        for j in range(i + 1, N):
             corr[i][j] /= np.sqrt(corr[i][i] * corr[j][j])
             corr[j][i] = corr[i][j]
     for i in range(N):
@@ -65,6 +67,7 @@ def sign_similarity(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample sign similarity matrix.
+    
     """
     x = np.array(x).T
     N, n = x.shape
@@ -73,7 +76,7 @@ def sign_similarity(x: np.ndarray) -> np.ndarray:
     corr = np.zeros((N, N))
     transformer = np.vectorize(lambda y: 1 if y >= 0 else 0)
     for i in range(N):
-        for j in range(i+1, N):
+        for j in range(i + 1, N):
             corr[i][j] = np.sum(transformer(x[i] * x[j])) / n
             corr[j][i] = corr[i][j]
     for i in range(N):
@@ -94,6 +97,7 @@ def fechner(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Fechner correlation matrix.
+    
     """
     x = np.array(x).T
     N, n = x.shape
@@ -102,7 +106,7 @@ def fechner(x: np.ndarray) -> np.ndarray:
     corr = np.zeros((N, N))
     transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
     for i in range(N):
-        for j in range(i+1, N):
+        for j in range(i + 1, N):
             corr[i][j] = np.sum(transformer(x[i] * x[j])) / n
             corr[j][i] = corr[i][j]
     for i in range(N):
@@ -123,6 +127,7 @@ def kruskal(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Kruskal correlation matrix.
+    
     """
     x = np.array(x).T
     N, n = x.shape
@@ -131,7 +136,7 @@ def kruskal(x: np.ndarray) -> np.ndarray:
     corr = np.zeros((N, N))
     transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
     for i in range(N):
-        for j in range(i+1, N):
+        for j in range(i + 1, N):
             corr[i][j] = np.sum(transformer(x[i] * x[j])) / n
             corr[j][i] = corr[i][j]
     for i in range(N):
@@ -140,11 +145,11 @@ def kruskal(x: np.ndarray) -> np.ndarray:
 
 
 def _kendall_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    p = np.argsort(y, kind='stable')
+    p = np.argsort(y, kind="stable")
     x, y = x[p], y[p]
     y = np.r_[True, y[1:] != y[:-1]].cumsum()
 
-    p = np.argsort(x, kind='stable')
+    p = np.argsort(x, kind="stable")
     x, y = x[p], y[p]
     x = np.r_[True, x[1:] != x[:-1]].cumsum()
 
@@ -167,12 +172,13 @@ def kendall(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Kendall correlation matrix.
+    
     """
     x = np.array(x).T
     N, n = x.shape
     corr = np.zeros((N, N))
     for i in range(N):
-        for j in range(i+1, N):
+        for j in range(i + 1, N):
             corr[i][j] = _kendall_pair(x[i], x[j])
             corr[j][i] = corr[i][j]
     for i in range(N):
@@ -181,13 +187,13 @@ def kendall(x: np.ndarray) -> np.ndarray:
 
 
 def _spearman_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    p = np.argsort(y, kind='stable')
+    p = np.argsort(y, kind="stable")
     x, y = x[p], y[p]
     y = np.r_[True, y[1:] != y[:-1]].cumsum()
 
     y_ord = y
 
-    p = np.argsort(x, kind='stable')
+    p = np.argsort(x, kind="stable")
     x, y = x[p], y[p]
     x = np.r_[True, x[1:] != x[:-1]].cumsum()
 
@@ -195,10 +201,14 @@ def _spearman_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
     Q = 0
     n = x.shape[0]
-    Q += np.sum(np.searchsorted(x_ord, x - 1, side='right') *
-                (n - np.searchsorted(y_ord, y + 1, side='left')))
-    Q += np.sum(np.searchsorted(y_ord, y - 1, side='right') *
-                (n - np.searchsorted(x_ord, x + 1, side='left')))
+    Q += np.sum(
+        np.searchsorted(x_ord, x - 1, side="right")
+        * (n - np.searchsorted(y_ord, y + 1, side="left"))
+    )
+    Q += np.sum(
+        np.searchsorted(y_ord, y - 1, side="right")
+        * (n - np.searchsorted(x_ord, x + 1, side="left"))
+    )
     Q -= 2 * _kendall_dis(x, y)
 
     return 3 - (6 * Q / (n * (n - 1) * (n - 2)))
@@ -217,6 +227,7 @@ def spearman(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Spearman correlation matrix.
+    
     """
     x = np.array(x).T
     N, n = x.shape
@@ -241,11 +252,12 @@ def partial(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Partial Pearson correlation matrix.
+    
     """
     corr = np.linalg.inv(covariance(x))
     N = corr.shape[0]
     for i in range(N):
-        for j in range(i+1, N):
+        for j in range(i + 1, N):
             corr[i][j] /= -np.sqrt(corr[i][i] * corr[j][j])
             corr[j][i] = corr[i][j]
     for i in range(N):
@@ -266,6 +278,7 @@ def kurtosis(x: np.ndarray) -> float:
     -------
     kurtosis : float
         Sample analog of kurtosis.
+    
     """
     n, N = x.shape
     S = np.linalg.inv(covariance(x))
@@ -274,6 +287,6 @@ def kurtosis(x: np.ndarray) -> float:
     mean = np.mean(x, axis=1).reshape((N, -1))
     x = x - mean
     x = x.T
-
-    k = 1 / (n * N * (N + 2)) * np.sum(np.sum(np.dot(x, S) * x, axis=1)**2) - 1
+    
+    k = 1 / (n * N * (N + 2)) * np.sum(np.sum(np.dot(x, S) * x, axis=1) ** 2) - 1
     return k
