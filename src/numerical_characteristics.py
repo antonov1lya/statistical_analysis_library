@@ -56,7 +56,9 @@ def pearson(x: np.ndarray) -> np.ndarray:
     return corr
 
 
-def _corr_calculation(x: np.ndarray, transformer: Callable[[np.ndarray], np.ndarray]) -> np.ndarray:
+def _corr_calculation(
+    x: np.ndarray, transformer: Callable[[np.ndarray], np.ndarray]
+) -> np.ndarray:
     N, n = x.shape
     corr = np.zeros((N, N))
     for i in range(N):
@@ -89,7 +91,7 @@ def sign_similarity(x: np.ndarray) -> np.ndarray:
     x = x - mean
     transformer = np.vectorize(lambda y: 1 if y >= 0 else 0)
     return _corr_calculation(x, transformer)
-    
+
 
 def fechner(x: np.ndarray) -> np.ndarray:
     """
@@ -249,7 +251,7 @@ def partial(x: np.ndarray) -> np.ndarray:
             corr[i][j] /= -np.sqrt(corr[i][i] * corr[j][j])
             corr[j][i] = corr[i][j]
     for i in range(N):
-        corr[i][i] = -1
+        corr[i][i] = 1
     return corr
 
 
@@ -275,6 +277,6 @@ def kurtosis(x: np.ndarray) -> float:
     mean = np.mean(x, axis=1).reshape((N, -1))
     x = x - mean
     x = x.T
-    
+
     k = 1 / (n * N * (N + 2)) * np.sum(np.sum(np.dot(x, S) * x, axis=1) ** 2) - 1
     return k
