@@ -1,8 +1,11 @@
 import numpy as np
+
 from .numerical_characteristics import *
 
 
-def _calc_pearson_stat(corr: np.ndarray, threshold: float, kurt: float, n: int) -> np.ndarray:
+def _calc_pearson_stat(
+    corr: np.ndarray, threshold: float, kurt: float, n: int
+) -> np.ndarray:
     def z_transform(y):
         return 0.5 * np.log((1 + y) / (1 - y))
 
@@ -97,7 +100,7 @@ def fechner_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     n, N = x.shape
 
     def statistics(y):
-        return np.sqrt(n) * (y - threshold) / np.sqrt(1 - threshold ** 2)
+        return np.sqrt(n) * (y - threshold) / np.sqrt(1 - threshold**2)
 
     transformer = np.vectorize(statistics)
     return transformer(fechner(x))
@@ -127,7 +130,7 @@ def kruskal_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     n, N = x.shape
 
     def statistics(y):
-        return np.sqrt(n) * (y - threshold) / np.sqrt(1 - threshold ** 2)
+        return np.sqrt(n) * (y - threshold) / np.sqrt(1 - threshold**2)
 
     transformer = np.vectorize(statistics)
     return transformer(kruskal(x))

@@ -1,6 +1,7 @@
+from typing import Callable
+
 import numpy as np
 from scipy.stats._stats import _kendall_dis
-from typing import Callable
 
 
 def covariance(x: np.ndarray) -> np.ndarray:
@@ -78,7 +79,7 @@ def sign_similarity(x: np.ndarray) -> np.ndarray:
     ----------
     x : (n,N) array_like
         Sample of the size n from distribution of the N-dimensional random vector.
-    
+
     Returns
     -------
     corr : (N,N) ndarray
