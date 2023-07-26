@@ -3,9 +3,9 @@ from scipy.stats import norm
 from .numerical_characteristics import pearson
 
 
-def pearson_test(x: np.ndarray, threshold: float) -> np.ndarray:
+def pearson_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     """
-    Calculates p-values for testing N(N-1)/2 hypotheses of the form:
+    Calculates statistics for testing N(N-1)/2 hypotheses of the form:
     H_ij: The Pearson measure of similarity between the i and j component
     of the random vector <= threshold vs K_ij: The Pearson measure of similarity
     between the i and j component of the random vector > threshold.
@@ -20,8 +20,8 @@ def pearson_test(x: np.ndarray, threshold: float) -> np.ndarray:
 
     Returns
     -------
-    p_value : (N,N) ndarray
-        Matrix of p-values.
+    statistics : (N,N) ndarray
+        Matrix of statistics.
 
     """
     n, N = x.shape
@@ -36,8 +36,5 @@ def pearson_test(x: np.ndarray, threshold: float) -> np.ndarray:
             return -np.inf
         return np.sqrt(n) * (z_transform(y) - z_transform(threshold))
 
-    def calc_p_values(y):
-        return 1 - norm.cdf(statistics(y))
-
-    transformer = np.vectorize(calc_p_values)
+    transformer = np.vectorize(statistics)
     return transformer(pearson(x))
