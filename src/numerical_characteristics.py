@@ -1,10 +1,11 @@
 import numpy as np
 from scipy.stats._stats import _kendall_dis
+from typing import Callable
 
 
 def covariance(x: np.ndarray) -> np.ndarray:
     """
-    Sample covariance matrix.
+    Calculates a sample covariance matrix.
 
     Parameters
     ----------
@@ -15,7 +16,7 @@ def covariance(x: np.ndarray) -> np.ndarray:
     -------
     cov : (N,N) ndarray
         Sample covariance matrix.
-    
+
     """
     x = np.array(x).T
     N, n = x.shape
@@ -31,7 +32,7 @@ def covariance(x: np.ndarray) -> np.ndarray:
 
 def pearson(x: np.ndarray) -> np.ndarray:
     """
-    Sample Pearson correlation matrix.
+    Calculates a sample Pearson correlation matrix.
 
     Parameters
     ----------
@@ -42,7 +43,7 @@ def pearson(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Pearson correlation matrix.
-    
+
     """
     corr = covariance(x)
     N = corr.shape[0]
@@ -55,26 +56,9 @@ def pearson(x: np.ndarray) -> np.ndarray:
     return corr
 
 
-def sign_similarity(x: np.ndarray) -> np.ndarray:
-    """
-    Sample sign similarity matrix.
-
-    Parameters
-    ----------
-    x : (n,N) array_like
-        Sample of the size n from distribution of the N-dimensional random vector.
-    Returns
-    -------
-    corr : (N,N) ndarray
-        Sample sign similarity matrix.
-    
-    """
-    x = np.array(x).T
+def _corr_calculation(x: np.ndarray, transformer: Callable[[np.ndarray], np.ndarray]) -> np.ndarray:
     N, n = x.shape
-    mean = np.mean(x, axis=1).reshape((N, -1))
-    x = x - mean
     corr = np.zeros((N, N))
-    transformer = np.vectorize(lambda y: 1 if y >= 0 else 0)
     for i in range(N):
         for j in range(i + 1, N):
             corr[i][j] = np.sum(transformer(x[i] * x[j])) / n
@@ -84,9 +68,32 @@ def sign_similarity(x: np.ndarray) -> np.ndarray:
     return corr
 
 
+def sign_similarity(x: np.ndarray) -> np.ndarray:
+    """
+    Calculates a sample sign similarity matrix.
+
+    Parameters
+    ----------
+    x : (n,N) array_like
+        Sample of the size n from distribution of the N-dimensional random vector.
+    
+    Returns
+    -------
+    corr : (N,N) ndarray
+        Sample sign similarity matrix.
+
+    """
+    x = np.array(x).T
+    N, n = x.shape
+    mean = np.mean(x, axis=1).reshape((N, -1))
+    x = x - mean
+    transformer = np.vectorize(lambda y: 1 if y >= 0 else 0)
+    return _corr_calculation(x, transformer)
+    
+
 def fechner(x: np.ndarray) -> np.ndarray:
     """
-    Sample Fechner correlation matrix.
+    Calculates a sample Fechner correlation matrix.
 
     Parameters
     ----------
@@ -97,26 +104,14 @@ def fechner(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Fechner correlation matrix.
-    
+
     """
-    x = np.array(x).T
-    N, n = x.shape
-    mean = np.mean(x, axis=1).reshape((N, -1))
-    x = x - mean
-    corr = np.zeros((N, N))
-    transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
-    for i in range(N):
-        for j in range(i + 1, N):
-            corr[i][j] = np.sum(transformer(x[i] * x[j])) / n
-            corr[j][i] = corr[i][j]
-    for i in range(N):
-        corr[i][i] = 1
-    return corr
+    return 2 * sign_similarity(x) - 1
 
 
 def kruskal(x: np.ndarray) -> np.ndarray:
     """
-    Sample Kruskal correlation matrix.
+    Calculates a sample Kruskal correlation matrix.
 
     Parameters
     ----------
@@ -127,21 +122,14 @@ def kruskal(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Kruskal correlation matrix.
-    
+
     """
     x = np.array(x).T
     N, n = x.shape
     med = np.median(x, axis=1).reshape((N, -1))
     x = x - med
-    corr = np.zeros((N, N))
     transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
-    for i in range(N):
-        for j in range(i + 1, N):
-            corr[i][j] = np.sum(transformer(x[i] * x[j])) / n
-            corr[j][i] = corr[i][j]
-    for i in range(N):
-        corr[i][i] = 1
-    return corr
+    return _corr_calculation(x, transformer)
 
 
 def _kendall_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
@@ -161,7 +149,7 @@ def _kendall_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
 def kendall(x: np.ndarray) -> np.ndarray:
     """
-    Sample Kendall correlation matrix.
+    Calculates a sample Kendall correlation matrix.
 
     Parameters
     ----------
@@ -172,7 +160,7 @@ def kendall(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Kendall correlation matrix.
-    
+
     """
     x = np.array(x).T
     N, n = x.shape
@@ -216,7 +204,7 @@ def _spearman_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
 def spearman(x: np.ndarray) -> np.ndarray:
     """
-    Sample Spearman correlation matrix.
+    Calculates a sample Spearman correlation matrix.
 
     Parameters
     ----------
@@ -227,7 +215,7 @@ def spearman(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Spearman correlation matrix.
-    
+
     """
     x = np.array(x).T
     N, n = x.shape
@@ -241,7 +229,7 @@ def spearman(x: np.ndarray) -> np.ndarray:
 
 def partial(x: np.ndarray) -> np.ndarray:
     """
-    Sample Partial Pearson correlation matrix.
+    Calculates a sample Partial Pearson correlation matrix.
 
     Parameters
     ----------
@@ -252,7 +240,7 @@ def partial(x: np.ndarray) -> np.ndarray:
     -------
     corr : (N,N) ndarray
         Sample Partial Pearson correlation matrix.
-    
+
     """
     corr = np.linalg.inv(covariance(x))
     N = corr.shape[0]
@@ -267,7 +255,7 @@ def partial(x: np.ndarray) -> np.ndarray:
 
 def kurtosis(x: np.ndarray) -> float:
     """
-    Sample analog of kurtosis.
+    Calculates a sample analog of kurtosis.
 
     Parameters
     ----------
@@ -278,7 +266,7 @@ def kurtosis(x: np.ndarray) -> float:
     -------
     kurtosis : float
         Sample analog of kurtosis.
-    
+
     """
     n, N = x.shape
     S = np.linalg.inv(covariance(x))
