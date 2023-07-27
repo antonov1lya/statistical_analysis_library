@@ -52,7 +52,6 @@ def pearson(x: np.ndarray) -> np.ndarray:
         for j in range(i + 1, N):
             corr[i][j] /= np.sqrt(corr[i][i] * corr[j][j])
             corr[j][i] = corr[i][j]
-    for i in range(N):
         corr[i][i] = 1
     return corr
 
@@ -66,7 +65,6 @@ def _corr_calculation(
         for j in range(i + 1, N):
             corr[i][j] = np.sum(transformer(x[i] * x[j])) / n
             corr[j][i] = corr[i][j]
-    for i in range(N):
         corr[i][i] = 1
     return corr
 
@@ -146,7 +144,6 @@ def _kendall_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
     Q = _kendall_dis(x, y)
     n = x.shape[0]
-
     return 1 - (4 * Q / (n * (n - 1)))
 
 
@@ -172,7 +169,6 @@ def kendall(x: np.ndarray) -> np.ndarray:
         for j in range(i + 1, N):
             corr[i][j] = _kendall_pair(x[i], x[j])
             corr[j][i] = corr[i][j]
-    for i in range(N):
         corr[i][i] = 1
     return corr
 
@@ -181,13 +177,11 @@ def _spearman_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     p = np.argsort(y, kind="stable")
     x, y = x[p], y[p]
     y = np.r_[True, y[1:] != y[:-1]].cumsum()
-
     y_ord = y
 
     p = np.argsort(x, kind="stable")
     x, y = x[p], y[p]
     x = np.r_[True, x[1:] != x[:-1]].cumsum()
-
     x_ord = x
 
     Q = 0
@@ -201,7 +195,6 @@ def _spearman_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
         * (n - np.searchsorted(x_ord, x + 1, side="left"))
     )
     Q -= 2 * _kendall_dis(x, y)
-
     return 3 - (6 * Q / (n * (n - 1) * (n - 2)))
 
 
@@ -251,7 +244,6 @@ def partial(x: np.ndarray) -> np.ndarray:
         for j in range(i + 1, N):
             corr[i][j] /= -np.sqrt(corr[i][i] * corr[j][j])
             corr[j][i] = corr[i][j]
-    for i in range(N):
         corr[i][i] = 1
     return corr
 
@@ -273,11 +265,9 @@ def kurtosis(x: np.ndarray) -> float:
     """
     n, N = x.shape
     S = np.linalg.inv(covariance(x))
-
     x = np.array(x).T
     mean = np.mean(x, axis=1).reshape((N, -1))
     x = x - mean
     x = x.T
-
     k = 1 / (n * N * (N + 2)) * np.sum(np.sum(np.dot(x, S) * x, axis=1) ** 2) - 1
     return k
