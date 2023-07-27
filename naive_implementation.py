@@ -117,10 +117,9 @@ def kurtosis(x: np.ndarray) -> float:
     x = x.T
     sum = 0
     for t in range(n):
-        sum += float(np.dot(
-            np.dot(x[t] - mean, S),
-            (x[t] - mean).reshape((N, -1))
-        )) ** 2
+        sum += (
+            float(np.dot(np.dot(x[t] - mean, S), (x[t] - mean).reshape((N, -1)))) ** 2
+        )
     return 1 / (N * (N + 2) * n) * sum - 1
 
 
