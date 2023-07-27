@@ -4,15 +4,15 @@ import naive_implementation as naive
 import numpy as np
 import src.numerical_characteristics as optimal
 
-
 a = np.array(
     [
         [1, 2, 4, 3, 2, 4, 3, 3, 4, 3, 2, 4, 5, 1, 2, 4, 3, 2, 2, 3],
         [4, 2, 3, 4, 3, 5, 3, 3, 2, 3, 2, 4, 2, 4, 2, 4, 3, 1, 2, 4],
         [4, 2, 3, 4, 2, 5, 3, 4, 2, 3, 2, 1, 3, 4, 4, 4, 1, 4, 5, 3],
         [5, 4, 3, 5, 6, 2, 6, 3, 6, 2, 6, 1, 3, 2, 4, 3, 4, 2, 2, 4],
-        [2, 4, 5, 3, 4, 5, 3, 5, 6, 2, 6, 4, 3, 4, 5, 5, 4, 5, 3, 5]
-    ]).T
+        [2, 4, 5, 3, 4, 5, 3, 5, 6, 2, 6, 4, 3, 4, 5, 5, 4, 5, 3, 5],
+    ]
+).T
 
 S = [[5, 2, 1, 0], [2, 2, 0, 1], [1, 0, 2, 1], [0, 1, 1, 2]]
 b = np.random.multivariate_normal([0, 0, 0, 0], S, size=100)
@@ -29,7 +29,7 @@ class TestNumericalCharacteristics(unittest.TestCase):
             naive.kendall,
             naive.spearman,
             naive.kurtosis,
-            naive.partial
+            naive.partial,
         ]
 
         second = [
@@ -41,7 +41,7 @@ class TestNumericalCharacteristics(unittest.TestCase):
             optimal.kendall,
             optimal.spearman,
             optimal.kurtosis,
-            optimal.partial
+            optimal.partial,
         ]
 
         for i in range(len(first)):
