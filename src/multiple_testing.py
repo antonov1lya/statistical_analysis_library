@@ -1,4 +1,5 @@
 from typing import Callable
+
 import numpy as np
 from scipy.stats import norm
 
@@ -10,7 +11,7 @@ def _calc_p_value(
     measure: str,
     threshold: float,
     model: str,
-    p_value: Callable[[np.ndarray], np.ndarray]
+    p_value: Callable[[np.ndarray], np.ndarray],
 ) -> np.ndarray:
     if measure == "pearson":
         if model == "gaussian":
@@ -95,4 +96,7 @@ def concentration_graph_p_value(
 
     """
     p_value = np.vectorize(lambda y: 2 * (1 - norm.cdf(np.abs(y))))
-    return _calc_p_value(x, measure, 0, model, p_value)
+    if measure == "sign_similarity":
+        return _calc_p_value(x, measure, 0.5, model, p_value)
+    else:
+        return _calc_p_value(x, measure, 0, model, p_value)
