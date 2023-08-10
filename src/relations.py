@@ -1,101 +1,69 @@
 import numpy as np
 
 
-def from_pearson_to_sign_similarity(pearson: float) -> float:
+def equivalent_correlation_value(corr: float, input_type: str, output_type: str) -> float:
     """
-    Calculates from the value of the Pearson correlation
-    the equivalent value of the sign measure of similarity
-    for a bi-variate elliptical vector.
+    Calculates by the value of one type correlation 
+    the equivalent value of another type correlation.
+
+    Remember that relations between Pearson's correlation,
+    sign similarity measure, Fechner's correlation, Kruskal's correlation,
+    Kendall's correlation works in an elliptical distribution.
+
+    But relations between Spearman's correlation and other correlations
+    only works in a Gaussian distribution.
 
     Parameters
     ----------
-    pearson : float
-        The value of the Pearson correlation.
+    corr : float
+        The value of input_type correlation.
+    input_type : {'pearson', 'sign_similarity', 'fechner', 'kruskal', 'kendall', 'spearman'}
+        The type of input correlation.
+    output_type : {'pearson', 'sign_similarity', 'fechner', 'kruskal', 'kendall', 'spearman'}
+        The type of output correlation.
 
     Returns
     -------
-    sign_similarity : float
-        The equivalent value of the sign measure of similarity.
+    corr : float
+        The value of output_type correlation.
 
     """
-    return 0.5 + (1 / np.pi) * np.arcsin(pearson)
+    if input_type == 'pearson':
+        if output_type == 'pearson':
+            return corr
+        if output_type == 'sign_similarity':
+            return 0.5 + (1 / np.pi) * np.arcsin(corr)
+        if output_type in ['fechner', 'kruskal', 'kendall']:
+            return (2 / np.pi) * np.arcsin(corr)
+        if output_type == 'spearman':
+            return (6 / np.pi) * np.arcsin(corr / 2)
 
+    if input_type == 'sign_similarity':
+        if output_type == 'pearson':
+            return np.sin(np.pi * (corr - 0.5))
+        if output_type == 'sign_similarity':
+            return corr
+        if output_type in ['fechner', 'kruskal', 'kendall']:
+            return 2 * corr - 1
+        if output_type == 'spearman':
+            return (6 / np.pi) * np.arcsin(np.sin(np.pi * (corr - 0.5)) / 2)
 
-def from_pearson_to_fechner(pearson: float) -> float:
-    """
-    Calculates from the value of the Pearson correlation
-    the equivalent value of the Fechner correlation
-    for a bi-variate elliptical vector.
+    if input_type in ['fechner', 'kruskal', 'kendall']:
+        if output_type == 'pearson':
+            return np.sin(np.pi * corr / 2)
+        if output_type == 'sign_similarity':
+            return (1 + corr) / 2
+        if output_type in ['fechner', 'kruskal', 'kendall']:
+            return corr
+        if output_type == 'spearman':
+            return (6 / np.pi) * np.arcsin(np.sin(np.pi / 2 * corr) / 2)
 
-    Parameters
-    ----------
-    pearson : float
-        The value of the Pearson correlation.
-
-    Returns
-    -------
-    fechner : float
-        The equivalent value of the Fechner correlation.
-
-    """
-    return (2 / np.pi) * np.arcsin(pearson)
-
-
-def from_pearson_to_kruskal(pearson: float) -> float:
-    """
-    Calculates from the value of the Pearson correlation
-    the equivalent value of the Kruskal correlation
-    for a bi-variate elliptical vector.
-
-    Parameters
-    ----------
-    pearson : float
-        The value of the Pearson correlation.
-
-    Returns
-    -------
-    kruskal : float
-        The equivalent value of the Kruskal correlation.
-
-    """
-    return (2 / np.pi) * np.arcsin(pearson)
-
-
-def from_pearson_to_kendall(pearson: float) -> float:
-    """
-    Calculates from the value of the Pearson correlation
-    the equivalent value of the Kendall correlation
-    for a bi-variate elliptical vector.
-
-    Parameters
-    ----------
-    pearson : float
-        The value of the Pearson correlation.
-
-    Returns
-    -------
-    kendall : float
-        The equivalent value of the Kendall correlation.
-
-    """
-    return (2 / np.pi) * np.arcsin(pearson)
-
-
-def from_pearson_to_spearman(pearson: float) -> float:
-    """
-    Calculates from the value of the Pearson correlation
-    the equivalent value of the Spearman correlation
-    for a bi-variate Gaussian vector.
-
-    Parameters
-    ----------
-    pearson : float
-        The value of the Pearson correlation.
-
-    Returns
-    -------
-    spearman : float
-        The equivalent value of the Spearman correlation.
-
-    """
-    return (6 / np.pi) * np.arcsin(pearson / 2)
+    if input_type == 'spearman':
+        if output_type == 'pearson':
+            return 2 * np.sin((np.pi / 6) * corr)
+        if output_type == 'sign_similarity':
+            return 0.5 + (1 / np.pi) * np.arcsin(2 * np.sin((np.pi / 6) * corr))
+        if output_type in ['fechner', 'kruskal', 'kendall']:
+            return (2 / np.pi) * np.arcsin(2 * np.sin((np.pi / 6) * corr))
+        if output_type == 'spearman':
+            return corr

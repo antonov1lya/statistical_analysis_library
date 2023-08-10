@@ -3,6 +3,7 @@ import unittest
 import naive_implementation as naive
 import numpy as np
 import src.numerical_characteristics as optimal
+from src.relations import equivalent_correlation_value
 
 a = np.array(
     [
@@ -46,11 +47,33 @@ class TestNumericalCharacteristics(unittest.TestCase):
 
         for i in range(len(first)):
             self.assertEqual(
-                np.round(first[i](a), 10).tolist(), np.round(second[i](a), 10).tolist()
+                np.round(first[i](a), 10).tolist(), np.round(
+                    second[i](a), 10).tolist()
             )
             self.assertEqual(
-                np.round(first[i](b), 10).tolist(), np.round(second[i](b), 10).tolist()
+                np.round(first[i](b), 10).tolist(), np.round(
+                    second[i](b), 10).tolist()
             )
+
+    def test_equivalent_correlation_value(self):
+        for val in np.linspace(-1, 1, 100):
+            corr = {
+                'pearson': val,
+                'sign_similarity': equivalent_correlation_value(val, 'pearson', 'sign_similarity'),
+                'fechner': equivalent_correlation_value(val, 'pearson', 'fechner'),
+                'kruskal': equivalent_correlation_value(val, 'pearson', 'kruskal'),
+                'kendall': equivalent_correlation_value(val, 'pearson', 'kendall'),
+                'spearman': equivalent_correlation_value(val, 'pearson', 'spearman'),
+            }
+            for inp in corr:
+                for out in corr:
+                    self.assertEqual(
+                        np.round(
+                            equivalent_correlation_value(corr[inp], inp, out),
+                            7
+                        ),
+                        np.round(corr[out], 7)
+                    )
 
 
 unittest.main()
