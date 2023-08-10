@@ -40,7 +40,7 @@ def equivalent_correlation_value(
         if output_type == "spearman":
             return (6 / np.pi) * np.arcsin(corr / 2)
 
-    if input_type == 'sign_similarity':
+    if input_type == "sign_similarity":
         if output_type == "pearson":
             return np.sin(np.pi * (corr - 0.5))
         if output_type == "sign_similarity":

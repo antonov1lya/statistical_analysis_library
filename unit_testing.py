@@ -69,7 +69,7 @@ class TestNumericalCharacteristics(unittest.TestCase):
                 for out in corr:
                     self.assertEqual(
                         np.round(equivalent_correlation_value(corr[inp], inp, out), 7),
-                        np.round(corr[out], 7)
+                        np.round(corr[out], 7),
                     )
 
 
