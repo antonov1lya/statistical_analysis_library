@@ -20,7 +20,7 @@ def equivalent_correlation_value(corr: float, input_type: str, output_type: str)
     input_type : {'pearson', 'sign_similarity', 'fechner', 'kruskal', 'kendall', 'spearman'}
         The type of input correlation.
     output_type : {'pearson', 'sign_similarity', 'fechner', 'kruskal', 'kendall', 'spearman'}
-        The type of input correlation.
+        The type of output correlation.
 
     Returns
     -------

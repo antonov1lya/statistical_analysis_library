@@ -20,17 +20,20 @@ def _calc_pearson_stat(
     return transformer(corr)
 
 
-def pearson_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
+def pearson_statistics(x: np.ndarray, model: str, threshold: float) -> np.ndarray:
     """
-    Calculates statistics for testing N(N-1)/2 hypotheses of the form:
-    H_ij: The Pearson correlation between the i and j component
-    of the random vector <= threshold vs K_ij: The Pearson correlation
-    between the i and j component of the random vector > threshold.
+    Calculates a matrix of statistics 
+    where each statistic has a standard Gaussian distribution N(0,1) 
+    under the assumption that the Pearson correlation 
+    between the i and j component of the random vector is equal to the threshold.
 
     Parameters
     ----------
     x : (n,N) array_like
-        Sample of the size n from distribution of the N-dimensional elliptical random vector.
+        Sample of the size n from distribution of the N-dimensional random vector.
+
+    model : {'gaussian', 'elliptical'}
+        The model according to which the random vector is distributed.
 
     threshold : float
         The threshold in the interval (-1, 1).
@@ -42,16 +45,20 @@ def pearson_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
 
     """
     n, N = x.shape
-    kurt = kurtosis(x)
-    return _calc_pearson_stat(pearson(x), threshold, kurt, n)
+    if model == 'gaussian':
+        return _calc_pearson_stat(pearson(x), threshold, 0, n)
+    if model == 'elliptical':
+        kurt = kurtosis(x)
+        return _calc_pearson_stat(pearson(x), threshold, kurt, n)
 
 
 def sign_similarity_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     """
-    Calculates statistics for testing N(N-1)/2 hypotheses of the form:
-    H_ij: The sign measure of similarity between the i and j component
-    of the random vector <= threshold vs K_ij: The sign measure of similarity
-    between the i and j component of the random vector > threshold.
+    Calculates a matrix of statistics 
+    where each statistic has a standard Gaussian distribution N(0,1) 
+    under the assumption that the sign measure of similarity
+    between the i and j component of the elliptical random vector 
+    is equal to the threshold.
 
     Parameters
     ----------
@@ -78,10 +85,11 @@ def sign_similarity_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
 
 def fechner_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     """
-    Calculates statistics for testing N(N-1)/2 hypotheses of the form:
-    H_ij: The Fechner correlation between the i and j component
-    of the random vector <= threshold vs K_ij: The Fechner correlation
-    between the i and j component of the random vector > threshold.
+    Calculates a matrix of statistics 
+    where each statistic has a standard Gaussian distribution N(0,1) 
+    under the assumption that the Fechner correlation
+    between the i and j component of the elliptical random vector 
+    is equal to the threshold.
 
     Parameters
     ----------
@@ -108,10 +116,11 @@ def fechner_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
 
 def kruskal_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     """
-    Calculates statistics for testing N(N-1)/2 hypotheses of the form:
-    H_ij: The Kruskal correlation between the i and j component
-    of the random vector <= threshold vs K_ij: The Kruskal correlation
-    between the i and j component of the random vector > threshold.
+    Calculates a matrix of statistics 
+    where each statistic has a standard Gaussian distribution N(0,1) 
+    under the assumption that the Kruskal correlation
+    between the i and j component of the elliptical random vector 
+    is equal to the threshold.
 
     Parameters
     ----------
@@ -138,10 +147,11 @@ def kruskal_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
 
 def spearman_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     """
-    Calculates statistics for testing N(N-1)/2 hypotheses of the form:
-    H_ij: The Spearman correlation between the i and j component
-    of the random vector <= threshold vs K_ij: The Spearman correlation
-    between the i and j component of the random vector > threshold.
+    Calculates a matrix of statistics 
+    where each statistic has a standard Gaussian distribution N(0,1) 
+    under the assumption that the Spearman correlation
+    between the i and j component of the elliptical random vector 
+    is equal to the threshold.
 
     Parameters
     ----------
@@ -168,10 +178,11 @@ def spearman_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
 
 def partial_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     """
-    Calculates statistics for testing N(N-1)/2 hypotheses of the form:
-    H_ij: The partial Pearson correlation between the i and j component
-    of the random vector <= threshold vs K_ij: The partial Pearson correlation
-    between the i and j component of the random vector > threshold.
+    Calculates a matrix of statistics 
+    where each statistic has a standard Gaussian distribution N(0,1) 
+    under the assumption that the partial Pearson correlation
+    between the i and j component of the elliptical random vector 
+    is equal to the threshold.
 
     Parameters
     ----------
