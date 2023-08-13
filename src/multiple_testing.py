@@ -100,3 +100,158 @@ def concentration_graph_p_value(
         return _calc_p_value(x, measure, 0.5, model, p_value)
     else:
         return _calc_p_value(x, measure, 0, model, p_value)
+
+
+def bonferroni(p_value: np.ndarray, a: float) -> np.ndarray:
+    """
+    Bonferroni procedure for testing M=N(N-1)/2 hypotheses 
+    with tests of the form:
+    1(the hypothesis is rejected) if p_value[i,j]<a_ij,
+    0(the hypothesis is accepted) if p_value[i,j]>=a_ij.
+
+    In the Bonferonni procedure a_ij=a/M. 
+    It is known that for this procedure FWER<=a.
+
+    Parameters
+    ----------
+    p_value : (N,N) ndarray
+        Matrix of p-values.
+
+    a : float
+        The boundary of FWER.
+
+    Returns
+    -------
+    decision_matrix : (N,N) ndarray
+        Decision matrix.
+
+    """
+    N = p_value.shape[0]
+    M = N * (N - 1) / 2
+    decision = np.vectorize(lambda y: int(y < a / M))
+    decision_matrix = decision(p_value)
+    for i in range(N):
+        decision_matrix[i][i] = 0
+    return decision_matrix
+
+
+def holm_step_down(p_value: np.ndarray, a: float) -> np.ndarray:
+    """
+    Holm Step Down procedure for testing M=N(N-1)/2 hypotheses 
+    with tests of the form:
+    1(the hypothesis is rejected) if p_value[i,j]<a_ij,
+    0(the hypothesis is accepted) if p_value[i,j]>=a_ij.
+
+    It is known that for this procedure FWER<=a.
+
+    Parameters
+    ----------
+    p_value : (N,N) ndarray
+        Matrix of p-values.
+
+    a : float
+        The boundary of FWER.
+
+    Returns
+    -------
+    decision_matrix : (N,N) ndarray
+        Decision matrix.
+
+    """
+    N = p_value.shape[0]
+    M = N * (N - 1) // 2
+    decision_matrix = np.zeros((N, N), dtype=int)
+    p_value_array = []
+    for i in range(N):
+        for j in range(i+1, N):
+            p_value_array.append((p_value[i][j], i, j))
+    p_value_array.sort()
+    for k in range(M):
+        if p_value_array[k][0] >= a / (M - k):
+            break
+        else:
+            decision_matrix[p_value_array[k][1]][p_value_array[k][2]] = 1
+            decision_matrix[p_value_array[k][2]][p_value_array[k][1]] = 1
+    return decision_matrix
+
+
+def hochberg_step_up(p_value: np.ndarray, a: float) -> np.ndarray:
+    """
+    Hochberg Step-up procedure for testing M=N(N-1)/2 hypotheses 
+    with tests of the form:
+    1(the hypothesis is rejected) if p_value[i,j]<a_ij,
+    0(the hypothesis is accepted) if p_value[i,j]>=a_ij.
+
+    It is known that for this procedure is proved that FWER<=a
+    under assumption of positive dependence of the components 
+    of the vector X.
+
+    Parameters
+    ----------
+    p_value : (N,N) ndarray
+        Matrix of p-values.
+
+    a : float
+        The boundary of FWER.
+
+    Returns
+    -------
+    decision_matrix : (N,N) ndarray
+        Decision matrix.
+
+    """
+    N = p_value.shape[0]
+    M = N * (N - 1) // 2
+    decision_matrix = np.ones((N, N), dtype=int)
+    p_value_array = []
+    for i in range(N):
+        decision_matrix[i][i] = 0
+        for j in range(i+1, N):
+            p_value_array.append((p_value[i][j], i, j))
+    p_value_array.sort(reverse=True)
+    for k in range(M):
+        if p_value_array[k][0] < a / (k + 1):
+            break
+        else:
+            decision_matrix[p_value_array[k][1]][p_value_array[k][2]] = 0
+            decision_matrix[p_value_array[k][2]][p_value_array[k][1]] = 0
+    return decision_matrix
+
+
+def benjamini_hochberg(p_value: np.ndarray, a: float) -> np.ndarray:
+    """
+    Benjamini-Hochberg procedure for testing M=N(N-1)/2 hypotheses 
+    with tests of the form:
+    1(the hypothesis is rejected) if p_value[i,j]<a_ij,
+    0(the hypothesis is accepted) if p_value[i,j]>=a_ij.
+
+    Parameters
+    ----------
+    p_value : (N,N) ndarray
+        Matrix of p-values.
+
+    a : float
+        The boundary of FWER.
+
+    Returns
+    -------
+    decision_matrix : (N,N) ndarray
+        Decision matrix.
+
+    """
+    N = p_value.shape[0]
+    M = N * (N - 1) // 2
+    decision_matrix = np.ones((N, N), dtype=int)
+    p_value_array = []
+    for i in range(N):
+        decision_matrix[i][i] = 0
+        for j in range(i+1, N):
+            p_value_array.append((p_value[i][j], i, j))
+    p_value_array.sort(reverse=True)
+    for k in range(M):
+        if p_value_array[k][0] <= (M - k) / M * a:
+            break
+        else:
+            decision_matrix[p_value_array[k][1]][p_value_array[k][2]] = 0
+            decision_matrix[p_value_array[k][2]][p_value_array[k][1]] = 0
+    return decision_matrix
