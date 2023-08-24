@@ -104,12 +104,12 @@ def concentration_graph_p_value(
 
 def bonferroni(p_value: np.ndarray, a: float) -> np.ndarray:
     """
-    Bonferroni procedure for testing M=N(N-1)/2 hypotheses 
+    Bonferroni procedure for testing M=N(N-1)/2 hypotheses
     with tests of the form:
     1(the hypothesis is rejected) if p_value[i,j]<a_ij,
     0(the hypothesis is accepted) if p_value[i,j]>=a_ij.
 
-    In the Bonferonni procedure a_ij=a/M. 
+    In the Bonferonni procedure a_ij=a/M.
     It is known that for this procedure FWER<=a.
 
     Parameters
@@ -137,7 +137,7 @@ def bonferroni(p_value: np.ndarray, a: float) -> np.ndarray:
 
 def holm_step_down(p_value: np.ndarray, a: float) -> np.ndarray:
     """
-    Holm Step Down procedure for testing M=N(N-1)/2 hypotheses 
+    Holm Step Down procedure for testing M=N(N-1)/2 hypotheses
     with tests of the form:
     1(the hypothesis is rejected) if p_value[i,j]<a_ij,
     0(the hypothesis is accepted) if p_value[i,j]>=a_ij.
@@ -163,7 +163,7 @@ def holm_step_down(p_value: np.ndarray, a: float) -> np.ndarray:
     decision_matrix = np.zeros((N, N), dtype=int)
     p_value_array = []
     for i in range(N):
-        for j in range(i+1, N):
+        for j in range(i + 1, N):
             p_value_array.append((p_value[i][j], i, j))
     p_value_array.sort()
     for k in range(M):
@@ -177,13 +177,13 @@ def holm_step_down(p_value: np.ndarray, a: float) -> np.ndarray:
 
 def hochberg_step_up(p_value: np.ndarray, a: float) -> np.ndarray:
     """
-    Hochberg Step-up procedure for testing M=N(N-1)/2 hypotheses 
+    Hochberg Step-up procedure for testing M=N(N-1)/2 hypotheses
     with tests of the form:
     1(the hypothesis is rejected) if p_value[i,j]<a_ij,
     0(the hypothesis is accepted) if p_value[i,j]>=a_ij.
 
     It is known that for this procedure is proved that FWER<=a
-    under assumption of positive dependence of the components 
+    under assumption of positive dependence of the components
     of the vector X.
 
     Parameters
@@ -206,7 +206,7 @@ def hochberg_step_up(p_value: np.ndarray, a: float) -> np.ndarray:
     p_value_array = []
     for i in range(N):
         decision_matrix[i][i] = 0
-        for j in range(i+1, N):
+        for j in range(i + 1, N):
             p_value_array.append((p_value[i][j], i, j))
     p_value_array.sort(reverse=True)
     for k in range(M):
@@ -220,7 +220,7 @@ def hochberg_step_up(p_value: np.ndarray, a: float) -> np.ndarray:
 
 def benjamini_hochberg(p_value: np.ndarray, a: float) -> np.ndarray:
     """
-    Benjamini-Hochberg procedure for testing M=N(N-1)/2 hypotheses 
+    Benjamini-Hochberg procedure for testing M=N(N-1)/2 hypotheses
     with tests of the form:
     1(the hypothesis is rejected) if p_value[i,j]<a_ij,
     0(the hypothesis is accepted) if p_value[i,j]>=a_ij.
@@ -245,7 +245,7 @@ def benjamini_hochberg(p_value: np.ndarray, a: float) -> np.ndarray:
     p_value_array = []
     for i in range(N):
         decision_matrix[i][i] = 0
-        for j in range(i+1, N):
+        for j in range(i + 1, N):
             p_value_array.append((p_value[i][j], i, j))
     p_value_array.sort(reverse=True)
     for k in range(M):

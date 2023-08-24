@@ -133,3 +133,23 @@ def partial(x: np.ndarray) -> np.ndarray:
             corr[j][i] = corr[i][j]
         corr[i][i] = 1
     return corr
+
+
+def pcc(x: np.ndarray) -> np.ndarray:
+    x = np.array(x).T
+    N, n = x.shape
+    corr = np.zeros((N, N))
+    for i in range(N):
+        for j in range(i, N):
+            for t in range(n):
+                for s in range(n):
+                    if s != t:
+                        for l in range(n):
+                            if l != t and l != s:
+                                first = (x[i][t] - x[i][s]) * (x[j][t] - x[j][s]) >= 0
+                                second = (x[i][t] - x[i][l]) * (x[j][t] - x[j][l]) >= 0
+                                if first and second:
+                                    corr[i][j] += 1
+            corr[i][j] /= (n * (n - 1) * (n - 2))
+            corr[j][i] = corr[i][j]
+    return corr
