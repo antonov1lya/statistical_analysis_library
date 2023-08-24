@@ -134,7 +134,7 @@ def kruskal(x: np.ndarray) -> np.ndarray:
     transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
     return _corr_calculation(x, transformer)
 
-def _ranking(x: np.ndarray, y: np.ndarray, ordered: bool=False) -> list[np.ndarray]:
+def _ranking(x: np.ndarray, y: np.ndarray, ordered: bool = False) -> list[np.ndarray]:
     p = np.argsort(y, kind="mergesort")
     x, y = x[p], y[p]
     y = np.r_[True, y[1:] != y[:-1]].cumsum()
@@ -293,7 +293,7 @@ def _pcc_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
 def pcc(x: np.ndarray) -> np.ndarray:
     """
-    Calculates a matrix of Pcc (estimation of the probability 
+    Calculates a matrix of Pcc (estimation of the probability
     that for any three pairs of observations,
     the second and third are concordant with the first).
 
