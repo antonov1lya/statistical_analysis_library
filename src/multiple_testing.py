@@ -3,7 +3,15 @@ from typing import Callable
 import numpy as np
 from scipy.stats import norm
 
-from .test_statistics import pearson_statistics, sign_similarity_statistics, fechner_statistics, kruskal_statistics, kendall_statistics, spearman_statistics, partial_statistics
+from .test_statistics import (
+    pearson_statistics, 
+    sign_similarity_statistics, 
+    fechner_statistics, 
+    kruskal_statistics, 
+    kendall_statistics, 
+    spearman_statistics, 
+    partial_statistics
+)
 
 
 def _calc_p_value(
