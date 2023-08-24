@@ -2,6 +2,7 @@ from typing import Callable
 
 import numpy as np
 from scipy.stats._stats import _kendall_dis
+
 from ._segment_tree import _pcc_array
 
 
@@ -273,6 +274,7 @@ def kurtosis(x: np.ndarray) -> float:
     k = 1 / (n * N * (N + 2)) * np.sum(np.sum(np.dot(x, S) * x, axis=1) ** 2) - 1
     return k
 
+
 def _pcc_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     p = np.argsort(y, kind="mergesort")
     x, y = x[p], y[p]
@@ -282,9 +284,9 @@ def _pcc_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     x, y = x[p], y[p]
     x = np.r_[True, x[1:] != x[:-1]].cumsum()
 
-    x-=1
-    y-=1
-    
+    x -= 1
+    y -= 1
+
     n = x.shape[0]
 
     arr = np.array(_pcc_array(x, y))
@@ -312,7 +314,7 @@ def pcc(x: np.ndarray) -> np.ndarray:
     corr = np.zeros((N, N))
     for i in range(N):
         corr[i][i] = 1
-        for j in range(i+1, N):
+        for j in range(i + 1, N):
             corr[i][j] = _pcc_pair(x[i],x[j])
             corr[j][i] = corr[i][j]
     return corr
