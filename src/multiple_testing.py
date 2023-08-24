@@ -3,7 +3,7 @@ from typing import Callable
 import numpy as np
 from scipy.stats import norm
 
-from .test_statistics import *
+from .test_statistics import pearson_statistics, sign_similarity_statistics, fechner_statistics, kruskal_statistics, kendall_statistics, spearman_statistics, partial_statistics
 
 
 def _calc_p_value(
@@ -27,7 +27,7 @@ def _calc_p_value(
 
     if measure == "kruskal":
         return p_value(kruskal_statistics(x, threshold))
-    
+
     if measure == "kendall":
         return p_value(kendall_statistics(x, threshold))
 
@@ -178,7 +178,9 @@ def holm_step_down(p_value: np.ndarray, a: float) -> np.ndarray:
     return decision_matrix
 
 
-def _hochberg(p_value: np.ndarray, a: float, comp: Callable[[float, float, int, int], bool]) -> np.ndarray:
+def _hochberg(
+    p_value: np.ndarray, a: float, comp: Callable[[float, float, int, int], bool]
+) -> np.ndarray:
     N = p_value.shape[0]
     M = N * (N - 1) // 2
     decision_matrix = np.ones((N, N), dtype=int)
@@ -222,8 +224,10 @@ def hochberg_step_up(p_value: np.ndarray, a: float) -> np.ndarray:
         Decision matrix.
 
     """
+
     def comp(x, a, k, M):
         return x < a / (k + 1)
+
     return _hochberg(p_value, a, comp)
 
 
@@ -248,6 +252,8 @@ def benjamini_hochberg(p_value: np.ndarray, a: float) -> np.ndarray:
         Decision matrix.
 
     """
+
     def comp(x, a, k, M):
         return x <= (M - k) / M * a
+
     return _hochberg(p_value, a, comp)

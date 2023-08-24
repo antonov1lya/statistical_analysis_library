@@ -1,6 +1,6 @@
 import numpy as np
 
-from .numerical_characteristics import *
+from .numerical_characteristics import pearson, kurtosis, sign_similarity, fechner, kruskal, kendall, pcc, spearman, partial
 
 
 def _calc_pearson_stat(
