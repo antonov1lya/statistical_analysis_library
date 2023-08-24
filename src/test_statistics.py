@@ -145,6 +145,37 @@ def kruskal_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     return transformer(kruskal(x))
 
 
+def kendall_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
+    """
+    Calculates a matrix of statistics
+    where each statistic has a standard Gaussian distribution N(0,1)
+    under the assumption that the Kendall correlation
+    between the i and j component of the elliptical random vector
+    is equal to the threshold.
+
+    Parameters
+    ----------
+    x : (n,N) array_like
+        Sample of the size n from distribution of the N-dimensional elliptical random vector.
+
+    threshold : float
+        The threshold in the interval (-1, 1).
+
+    Returns
+    -------
+    statistics : (N,N) ndarray
+        Matrix of statistics.
+
+    """
+    n, N = x.shape
+    kd = kendall(x)
+    numerator = np.sqrt(n) * (kd - threshold)
+    Pcc = pcc(x)
+    Pc = (kd + 1) / 2
+    denominator = 4 * np.sqrt(Pcc - np.power(Pc, 2))
+    return numerator / denominator
+
+
 def spearman_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     """
     Calculates a matrix of statistics

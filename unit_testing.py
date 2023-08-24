@@ -31,7 +31,7 @@ class TestNumericalCharacteristics(unittest.TestCase):
             naive.spearman,
             naive.kurtosis,
             naive.partial,
-            naive.pcc
+            naive.pcc,
         ]
 
         second = [
@@ -44,7 +44,7 @@ class TestNumericalCharacteristics(unittest.TestCase):
             optimal.spearman,
             optimal.kurtosis,
             optimal.partial,
-            optimal.pcc
+            optimal.pcc,
         ]
 
         for i in range(len(first)):
