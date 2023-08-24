@@ -178,6 +178,25 @@ def holm_step_down(p_value: np.ndarray, a: float) -> np.ndarray:
     return decision_matrix
 
 
+def _hochberg(p_value: np.ndarray, a: float, comp: Callable[[float, float, int, int], bool]) -> np.ndarray:
+    N = p_value.shape[0]
+    M = N * (N - 1) // 2
+    decision_matrix = np.ones((N, N), dtype=int)
+    p_value_array = []
+    for i in range(N):
+        decision_matrix[i][i] = 0
+        for j in range(i + 1, N):
+            p_value_array.append((p_value[i][j], i, j))
+    p_value_array.sort(reverse=True)
+    for k in range(M):
+        if comp(p_value_array[k][0], a, k, M):
+            break
+        else:
+            decision_matrix[p_value_array[k][1]][p_value_array[k][2]] = 0
+            decision_matrix[p_value_array[k][2]][p_value_array[k][1]] = 0
+    return decision_matrix
+
+
 def hochberg_step_up(p_value: np.ndarray, a: float) -> np.ndarray:
     """
     Hochberg Step-up procedure for testing M=N(N-1)/2 hypotheses
@@ -203,22 +222,9 @@ def hochberg_step_up(p_value: np.ndarray, a: float) -> np.ndarray:
         Decision matrix.
 
     """
-    N = p_value.shape[0]
-    M = N * (N - 1) // 2
-    decision_matrix = np.ones((N, N), dtype=int)
-    p_value_array = []
-    for i in range(N):
-        decision_matrix[i][i] = 0
-        for j in range(i + 1, N):
-            p_value_array.append((p_value[i][j], i, j))
-    p_value_array.sort(reverse=True)
-    for k in range(M):
-        if p_value_array[k][0] < a / (k + 1):
-            break
-        else:
-            decision_matrix[p_value_array[k][1]][p_value_array[k][2]] = 0
-            decision_matrix[p_value_array[k][2]][p_value_array[k][1]] = 0
-    return decision_matrix
+    def comp(x, a, k, M):
+        return x < a / (k + 1)
+    return _hochberg(p_value, a, comp)
 
 
 def benjamini_hochberg(p_value: np.ndarray, a: float) -> np.ndarray:
@@ -242,19 +248,6 @@ def benjamini_hochberg(p_value: np.ndarray, a: float) -> np.ndarray:
         Decision matrix.
 
     """
-    N = p_value.shape[0]
-    M = N * (N - 1) // 2
-    decision_matrix = np.ones((N, N), dtype=int)
-    p_value_array = []
-    for i in range(N):
-        decision_matrix[i][i] = 0
-        for j in range(i + 1, N):
-            p_value_array.append((p_value[i][j], i, j))
-    p_value_array.sort(reverse=True)
-    for k in range(M):
-        if p_value_array[k][0] <= (M - k) / M * a:
-            break
-        else:
-            decision_matrix[p_value_array[k][1]][p_value_array[k][2]] = 0
-            decision_matrix[p_value_array[k][2]][p_value_array[k][1]] = 0
-    return decision_matrix
+    def comp(x, a, k, M):
+        return x <= (M - k) / M * a
+    return _hochberg(p_value, a, comp)
