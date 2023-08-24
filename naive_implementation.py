@@ -150,6 +150,6 @@ def pcc(x: np.ndarray) -> np.ndarray:
                                 second = (x[i][t] - x[i][l]) * (x[j][t] - x[j][l]) >= 0
                                 if first and second:
                                     corr[i][j] += 1
-            corr[i][j] /= (n * (n - 1) * (n - 2))
+            corr[i][j] /= n * (n - 1) * (n - 2)
             corr[j][i] = corr[i][j]
     return corr

@@ -134,16 +134,31 @@ def kruskal(x: np.ndarray) -> np.ndarray:
     transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
     return _corr_calculation(x, transformer)
 
-
-def _kendall_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+def _ranking(x: np.ndarray, y: np.ndarray, ordered: bool=False) -> list[np.ndarray]:
     p = np.argsort(y, kind="mergesort")
     x, y = x[p], y[p]
     y = np.r_[True, y[1:] != y[:-1]].cumsum()
+
+    y_ord = None
+    if ordered:
+        y_ord = y
 
     p = np.argsort(x, kind="mergesort")
     x, y = x[p], y[p]
     x = np.r_[True, x[1:] != x[:-1]].cumsum()
 
+    x_ord = None
+    if ordered:
+        x_ord = x
+
+    if ordered:
+        return x, y, x_ord, y_ord
+    else:
+        return x, y
+
+
+def _kendall_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    x, y = _ranking(x, y)
     Q = _kendall_dis(x, y)
     n = x.shape[0]
     return 1 - (4 * Q / (n * (n - 1)))
@@ -176,16 +191,7 @@ def kendall(x: np.ndarray) -> np.ndarray:
 
 
 def _spearman_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    p = np.argsort(y, kind="mergesort")
-    x, y = x[p], y[p]
-    y = np.r_[True, y[1:] != y[:-1]].cumsum()
-    y_ord = y
-
-    p = np.argsort(x, kind="mergesort")
-    x, y = x[p], y[p]
-    x = np.r_[True, x[1:] != x[:-1]].cumsum()
-    x_ord = x
-
+    x, y, x_ord, y_ord = _ranking(x, y, True)
     Q = 0
     n = x.shape[0]
     Q += np.sum(
@@ -276,19 +282,10 @@ def kurtosis(x: np.ndarray) -> float:
 
 
 def _pcc_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    p = np.argsort(y, kind="mergesort")
-    x, y = x[p], y[p]
-    y = np.r_[True, y[1:] != y[:-1]].cumsum()
-
-    p = np.argsort(x, kind="mergesort")
-    x, y = x[p], y[p]
-    x = np.r_[True, x[1:] != x[:-1]].cumsum()
-
+    x, y = _ranking(x, y)
     x -= 1
     y -= 1
-
     n = x.shape[0]
-
     arr = np.array(_pcc_array(x, y))
     pcc = np.sum((n - 1 - arr) * (n - 2 - arr))
     return pcc / (n * (n - 1) * (n - 2))
@@ -296,7 +293,9 @@ def _pcc_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
 def pcc(x: np.ndarray) -> np.ndarray:
     """
-    Calculates a matrix of Pcc.
+    Calculates a matrix of Pcc (estimation of the probability 
+    that for any three pairs of observations,
+    the second and third are concordant with the first).
 
     Parameters
     ----------
@@ -306,7 +305,7 @@ def pcc(x: np.ndarray) -> np.ndarray:
     Returns
     -------
     corr : (N,N) ndarray
-        Matrix of Pcc.
+        Pcc matrix.
 
     """
     x = np.array(x).T
@@ -315,6 +314,6 @@ def pcc(x: np.ndarray) -> np.ndarray:
     for i in range(N):
         corr[i][i] = 1
         for j in range(i + 1, N):
-            corr[i][j] = _pcc_pair(x[i],x[j])
+            corr[i][j] = _pcc_pair(x[i], x[j])
             corr[j][i] = corr[i][j]
     return corr

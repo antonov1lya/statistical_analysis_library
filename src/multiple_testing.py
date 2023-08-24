@@ -27,6 +27,9 @@ def _calc_p_value(
 
     if measure == "kruskal":
         return p_value(kruskal_statistics(x, threshold))
+    
+    if measure == "kendall":
+        return p_value(kendall_statistics(x, threshold))
 
     if measure == "spearman":
         return p_value(spearman_statistics(x, threshold))
@@ -49,7 +52,7 @@ def threshold_graph_p_value(
     x : (n,N) array_like
         Sample of the size n from distribution of the N-dimensional random vector.
 
-    measure: {"pearson", "sign_similarity", "fechner", "kruskal", "spearman", "partial"}
+    measure: {"pearson", "sign_similarity", "fechner", "kruskal", "kendall", "spearman", "partial"}
         The measure of similarity relative to which the test is performed.
 
     threshold : float
