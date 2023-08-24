@@ -4,13 +4,13 @@ import numpy as np
 from scipy.stats import norm
 
 from .test_statistics import (
-    pearson_statistics, 
-    sign_similarity_statistics, 
-    fechner_statistics, 
-    kruskal_statistics, 
-    kendall_statistics, 
-    spearman_statistics, 
-    partial_statistics
+    fechner_statistics,
+    kendall_statistics,
+    kruskal_statistics,
+    partial_statistics,
+    pearson_statistics,
+    sign_similarity_statistics,
+    spearman_statistics,
 )
 
 

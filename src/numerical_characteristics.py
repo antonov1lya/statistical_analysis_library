@@ -134,6 +134,7 @@ def kruskal(x: np.ndarray) -> np.ndarray:
     transformer = np.vectorize(lambda y: 1 if y >= 0 else -1)
     return _corr_calculation(x, transformer)
 
+
 def _ranking(x: np.ndarray, y: np.ndarray, ordered: bool = False) -> list[np.ndarray]:
     p = np.argsort(y, kind="mergesort")
     x, y = x[p], y[p]
