@@ -1,15 +1,15 @@
 import numpy as np
 
 from .numerical_characteristics import (
-    pearson, 
-    kurtosis, 
-    sign_similarity, 
-    fechner, 
-    kruskal, 
-    kendall, 
-    pcc, 
-    spearman, 
-    partial
+    fechner,
+    kendall,
+    kruskal,
+    pearson,
+    kurtosis,
+    partial,
+    pcc,
+    sign_similarity,
+    spearman,
 )
 
 
