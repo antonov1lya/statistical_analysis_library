@@ -108,7 +108,7 @@ cdef upper_bound(intp_t[:] arr, int n, int x):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def _kendall_pair(intp_t[:] x, intp_t[:] y):
+def _pcc_array(intp_t[:] x, intp_t[:] y):
     cdef int n = x.size
     cdef intp_t[::1] res = np.zeros(n, dtype=np.intp)
     cdef int i, p, q

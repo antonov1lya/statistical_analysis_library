@@ -2,6 +2,7 @@ from typing import Callable
 
 import numpy as np
 from scipy.stats._stats import _kendall_dis
+from ._segment_tree import _pcc_array
 
 
 def covariance(x: np.ndarray) -> np.ndarray:
@@ -134,11 +135,11 @@ def kruskal(x: np.ndarray) -> np.ndarray:
 
 
 def _kendall_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    p = np.argsort(y, kind="stable")
+    p = np.argsort(y, kind="mergesort")
     x, y = x[p], y[p]
     y = np.r_[True, y[1:] != y[:-1]].cumsum()
 
-    p = np.argsort(x, kind="stable")
+    p = np.argsort(x, kind="mergesort")
     x, y = x[p], y[p]
     x = np.r_[True, x[1:] != x[:-1]].cumsum()
 
@@ -174,12 +175,12 @@ def kendall(x: np.ndarray) -> np.ndarray:
 
 
 def _spearman_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    p = np.argsort(y, kind="stable")
+    p = np.argsort(y, kind="mergesort")
     x, y = x[p], y[p]
     y = np.r_[True, y[1:] != y[:-1]].cumsum()
     y_ord = y
 
-    p = np.argsort(x, kind="stable")
+    p = np.argsort(x, kind="mergesort")
     x, y = x[p], y[p]
     x = np.r_[True, x[1:] != x[:-1]].cumsum()
     x_ord = x
@@ -271,3 +272,47 @@ def kurtosis(x: np.ndarray) -> float:
     x = x.T
     k = 1 / (n * N * (N + 2)) * np.sum(np.sum(np.dot(x, S) * x, axis=1) ** 2) - 1
     return k
+
+def _pcc_pair(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    p = np.argsort(y, kind="mergesort")
+    x, y = x[p], y[p]
+    y = np.r_[True, y[1:] != y[:-1]].cumsum()
+
+    p = np.argsort(x, kind="mergesort")
+    x, y = x[p], y[p]
+    x = np.r_[True, x[1:] != x[:-1]].cumsum()
+
+    x-=1
+    y-=1
+    
+    n = x.shape[0]
+
+    arr = np.array(_pcc_array(x, y))
+    pcc = np.sum((n - 1 - arr) * (n - 2 - arr))
+    return pcc / (n * (n - 1) * (n - 2))
+
+
+def pcc(x: np.ndarray) -> np.ndarray:
+    """
+    Calculates a matrix of Pcc.
+
+    Parameters
+    ----------
+    x : (n,N) array_like
+        Sample of the size n from distribution of the N-dimensional random vector.
+
+    Returns
+    -------
+    corr : (N,N) ndarray
+        Matrix of Pcc.
+
+    """
+    x = np.array(x).T
+    N, n = x.shape
+    corr = np.zeros((N, N))
+    for i in range(N):
+        corr[i][i] = 1
+        for j in range(i+1, N):
+            corr[i][j] = _pcc_pair(x[i],x[j])
+            corr[j][i] = corr[i][j]
+    return corr
