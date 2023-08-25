@@ -4,10 +4,10 @@ from .numerical_characteristics import (
     fechner,
     kendall,
     kruskal,
-    pearson,
     kurtosis,
     partial,
     pcc,
+    pearson,
     sign_similarity,
     spearman,
 )
