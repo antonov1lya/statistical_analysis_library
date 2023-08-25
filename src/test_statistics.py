@@ -85,12 +85,7 @@ def sign_similarity_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
 
     """
     n, N = x.shape
-
-    def statistics(y):
-        return np.sqrt(n) * (y - threshold) / np.sqrt(threshold * (1 - threshold))
-
-    transformer = np.vectorize(statistics)
-    return transformer(sign_similarity(x))
+    return np.sqrt(n) * (sign_similarity(x) - threshold) / np.sqrt(threshold * (1 - threshold))
 
 
 def fechner_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
@@ -116,12 +111,7 @@ def fechner_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
 
     """
     n, N = x.shape
-
-    def statistics(y):
-        return np.sqrt(n) * (y - threshold) / np.sqrt(1 - threshold**2)
-
-    transformer = np.vectorize(statistics)
-    return transformer(fechner(x))
+    return np.sqrt(n) * (fechner(x) - threshold) / np.sqrt(1 - threshold**2)
 
 
 def kruskal_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
@@ -147,12 +137,7 @@ def kruskal_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
 
     """
     n, N = x.shape
-
-    def statistics(y):
-        return np.sqrt(n) * (y - threshold) / np.sqrt(1 - threshold**2)
-
-    transformer = np.vectorize(statistics)
-    return transformer(kruskal(x))
+    return np.sqrt(n) * (kruskal(x) - threshold) / np.sqrt(1 - threshold**2)
 
 
 def kendall_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
@@ -183,7 +168,8 @@ def kendall_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     Pcc = pcc(x)
     Pc = (kd + 1) / 2
     denominator = 4 * np.sqrt(Pcc - np.power(Pc, 2))
-    return numerator / denominator
+    with np.errstate(divide='ignore'):
+        return numerator / denominator
 
 
 def spearman_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
@@ -209,12 +195,7 @@ def spearman_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
 
     """
     n, N = x.shape
-
-    def statistics(y):
-        return np.sqrt(n - 1) * (y - threshold)
-
-    transformer = np.vectorize(statistics)
-    return transformer(spearman(x))
+    return np.sqrt(n - 1) * (spearman(x) - threshold)
 
 
 def partial_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
