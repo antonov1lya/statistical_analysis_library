@@ -168,7 +168,7 @@ def kendall_statistics(x: np.ndarray, threshold: float) -> np.ndarray:
     Pcc = pcc(x)
     Pc = (kd + 1) / 2
     denominator = 4 * np.sqrt(Pcc - np.power(Pc, 2))
-    with np.errstate(divide='ignore'):
+    with np.errstate(divide="ignore"):
         return numerator / denominator
 
 
