@@ -4,16 +4,19 @@ cimport numpy as np
 from numpy cimport intp_t
 import numpy as np
 
+
 cdef struct data:
     int left_link
     int right_link
     int value
+
 
 cdef struct node:
     node *left
     node *right
     data *arr
     int arr_size
+
 
 cdef int merge(data *arr_l, int arr_l_size, data *arr_r, int arr_r_size, data **arr):
     cdef int arr_size = arr_l_size + arr_r_size
@@ -31,11 +34,13 @@ cdef int merge(data *arr_l, int arr_l_size, data *arr_r, int arr_r_size, data **
             r += 1
     return arr_size
 
+
 cdef void initialize(node *t):
     t.left = NULL
     t.right = NULL
     t.arr = NULL
     t.arr_size = 0
+
 
 cdef void add(node *t, int tl, int tr, intp_t[:] arr):
     if tr - tl == 1:
@@ -52,6 +57,7 @@ cdef void add(node *t, int tl, int tr, intp_t[:] arr):
     add(t.right, tc, tr, arr)
     t.arr_size = merge(t.left.arr, t.left.arr_size, t.right.arr, t.right.arr_size, &t.arr)
 
+
 cdef int count(node *t, int tl, int tr, int l, int r, int p):
     if tl == l and tr == r:
         return r - l - p
@@ -64,6 +70,7 @@ cdef int count(node *t, int tl, int tr, int l, int r, int p):
         result += count(t.right, tc, tr, max(tc, l), r, t.arr[p].right_link)
     return result
 
+
 cdef clean(node *t):
     if t.left:
         clean(t.left)
@@ -72,6 +79,7 @@ cdef clean(node *t):
         clean(t.right)
         free(t.right)
     free(t.arr)
+
 
 cdef lower_bound(intp_t[:] arr, int n, int x):
     cdef l = 0, r = n - 1, result = 0, c
@@ -84,6 +92,7 @@ cdef lower_bound(intp_t[:] arr, int n, int x):
             r = c - 1
     return result
 
+
 cdef lower_bound_data(data *arr, int n, int x):
     cdef l = 0, r = n - 1, result = 0, c
     while l <= r:
@@ -95,6 +104,7 @@ cdef lower_bound_data(data *arr, int n, int x):
             r = c - 1
     return result
 
+
 cdef upper_bound(intp_t[:] arr, int n, int x):
     cdef l = 0, r = n - 1, result = 0, c
     while l <= r:
@@ -105,6 +115,7 @@ cdef upper_bound(intp_t[:] arr, int n, int x):
         else:
             r = c - 1
     return result
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
