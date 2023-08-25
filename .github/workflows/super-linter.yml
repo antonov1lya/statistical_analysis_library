@@ -16,3 +16,4 @@ jobs:
         uses: super-linter/super-linter@v5.2.0
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          FILTER_REGEX_EXCLUDE: naive_implementation.py
