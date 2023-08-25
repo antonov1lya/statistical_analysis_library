@@ -1,1 +1,1 @@
-# network-analysis-library
+# statistical_analysis_library
